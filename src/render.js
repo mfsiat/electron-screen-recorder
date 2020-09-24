@@ -1,20 +1,3 @@
-
-Skip to content
-fireship-io /
-223-electron-screen-recorder
-
-Code
-Issues 2
-Pull requests 4
-Actions
-
-More
-223-electron-screen-recorder/src/render.js /
-@codediodeio
-codediodeio minor fixes
-History
-1 contributor
-108 lines (82 sloc) 2.48 KB
 const { desktopCapturer, remote } = require('electron');
 
 const { writeFile } = require('fs');
@@ -29,7 +12,7 @@ const recordedChunks = [];
 const videoElement = document.querySelector('video');
 
 const startBtn = document.getElementById('startBtn');
-startBtn.onclick = e => {
+startBtn.onclick = (e) => {
   mediaRecorder.start();
   startBtn.classList.add('is-danger');
   startBtn.innerText = 'Recording';
@@ -37,7 +20,7 @@ startBtn.onclick = e => {
 
 const stopBtn = document.getElementById('stopBtn');
 
-stopBtn.onclick = e => {
+stopBtn.onclick = (e) => {
   mediaRecorder.stop();
   startBtn.classList.remove('is-danger');
   startBtn.innerText = 'Start';
@@ -49,25 +32,23 @@ videoSelectBtn.onclick = getVideoSources;
 // Get the available video sources
 async function getVideoSources() {
   const inputSources = await desktopCapturer.getSources({
-    types: ['window', 'screen']
+    types: ['window', 'screen'],
   });
 
   const videoOptionsMenu = Menu.buildFromTemplate(
-    inputSources.map(source => {
+    inputSources.map((source) => {
       return {
         label: source.name,
-        click: () => selectSource(source)
+        click: () => selectSource(source),
       };
     })
   );
-
 
   videoOptionsMenu.popup();
 }
 
 // Change the videoSource window to record
 async function selectSource(source) {
-
   videoSelectBtn.innerText = source.name;
 
   const constraints = {
@@ -75,14 +56,13 @@ async function selectSource(source) {
     video: {
       mandatory: {
         chromeMediaSource: 'desktop',
-        chromeMediaSourceId: source.id
-      }
-    }
+        chromeMediaSourceId: source.id,
+      },
+    },
   };
 
   // Create a Stream
-  const stream = await navigator.mediaDevices
-    .getUserMedia(constraints);
+  const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
   // Preview the source in a video element
   videoElement.srcObject = stream;
@@ -108,20 +88,17 @@ function handleDataAvailable(e) {
 // Saves the video file on stop
 async function handleStop(e) {
   const blob = new Blob(recordedChunks, {
-    type: 'video/webm; codecs=vp9'
+    type: 'video/webm; codecs=vp9',
   });
 
   const buffer = Buffer.from(await blob.arrayBuffer());
 
   const { filePath } = await dialog.showSaveDialog({
     buttonLabel: 'Save video',
-    defaultPath: `vid-${Date.now()}.webm`
+    defaultPath: `vid-${Date.now()}.webm`,
   });
 
   if (filePath) {
     writeFile(filePath, buffer, () => console.log('video saved successfully!'));
   }
-
 }
-
-
